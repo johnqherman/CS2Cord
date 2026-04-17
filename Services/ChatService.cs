@@ -1,8 +1,8 @@
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Modules.Utils;
-using CSSCord.Config;
+using CS2Cord.Config;
 
-namespace CSSCord.Services;
+namespace CS2Cord.Services;
 
 public class ChatService
 {

@@ -1,9 +1,9 @@
 using System.Text;
 using System.Text.RegularExpressions;
-using CSSCord.Data;
-using CSSCord.Models;
+using CS2Cord.Data;
+using CS2Cord.Models;
 
-namespace CSSCord.Processing;
+namespace CS2Cord.Processing;
 
 public static class EmojiProcessor
 {

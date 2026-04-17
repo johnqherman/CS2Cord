@@ -1,4 +1,4 @@
-namespace CSSCord.Cache;
+namespace CS2Cord.Cache;
 
 public class TimedCache<TValue>
 {

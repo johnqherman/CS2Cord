@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
-using CSSCord.Config;
-using CSSCord.Services;
+using CS2Cord.Config;
+using CS2Cord.Services;
 
-namespace CSSCord.Processing;
+namespace CS2Cord.Processing;
 
 public class MentionProcessor
 {

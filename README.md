@@ -1,4 +1,4 @@
-# CSSCord
+# CS2Cord
 
 A [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) port of [SourceCord](https://github.com/johnqherman/sourcecord). Two-way Discord ↔ CS2 chat integration for Source 2.
 
@@ -16,7 +16,7 @@ A [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) port of
 
 ## Installation
 
-1. Drop `CSSCord.dll` into `game/csgo/addons/counterstrikesharp/plugins/CSSCord/`
+1. Drop `CS2Cord.dll` into `game/csgo/addons/counterstrikesharp/plugins/CS2Cord/`
 2. Start the server once. `credentials.json` will be created automatically
 3. Fill in `credentials.json` (see below) and restart
 
@@ -24,7 +24,7 @@ A [CounterStrikeSharp](https://github.com/roflmuffin/CounterStrikeSharp) port of
 
 ### `credentials.json`
 
-Located in the plugin directory alongside `CSSCord.dll`.
+Located in the plugin directory alongside `CS2Cord.dll`.
 
 | Field         | Description                                           |
 | ------------- | ----------------------------------------------------- |
@@ -34,9 +34,9 @@ Located in the plugin directory alongside `CSSCord.dll`.
 | `WebhookUrl`  | Webhook URL for the same channel                      |
 | `SteamApiKey` | Steam Web API key (optional, enables player avatars) |
 
-### `CSSCord.json`
+### `CS2Cord.json`
 
-Auto-created by CounterStrikeSharp in `configs/plugins/CSSCord/`.
+Auto-created by CounterStrikeSharp in `configs/plugins/CS2Cord/`.
 
 | Field                    | Default  | Description                                                     |
 | ------------------------ | -------- | --------------------------------------------------------------- |

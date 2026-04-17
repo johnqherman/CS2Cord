@@ -2,11 +2,11 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using CSSCord.Config;
-using CSSCord.Processing;
+using CS2Cord.Config;
+using CS2Cord.Processing;
 using Microsoft.Extensions.Logging;
 
-namespace CSSCord.Services;
+namespace CS2Cord.Services;
 
 public class WebhookService : IDisposable
 {
@@ -31,7 +31,7 @@ public class WebhookService : IDisposable
         _logger = logger;
 
         _http = new HttpClient();
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd($"CSSCord/{pluginVersion}");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd($"CS2Cord/{pluginVersion}");
     }
 
     public async Task SendChatMessageAsync(string username, string content, string? avatarUrl = null)

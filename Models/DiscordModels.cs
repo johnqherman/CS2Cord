@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace CSSCord.Models;
+namespace CS2Cord.Models;
 
 public record DiscordMessage(
     [property: JsonPropertyName("id")] string Id,

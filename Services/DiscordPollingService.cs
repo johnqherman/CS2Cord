@@ -1,7 +1,7 @@
-using CSSCord.Models;
+using CS2Cord.Models;
 using Microsoft.Extensions.Logging;
 
-namespace CSSCord.Services;
+namespace CS2Cord.Services;
 
 public class DiscordPollingService
 {

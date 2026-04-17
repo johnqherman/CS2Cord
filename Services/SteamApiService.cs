@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
-using CSSCord.Cache;
+using CS2Cord.Cache;
 using Microsoft.Extensions.Logging;
 
-namespace CSSCord.Services;
+namespace CS2Cord.Services;
 
 public class SteamApiService : IDisposable
 {
@@ -18,7 +18,7 @@ public class SteamApiService : IDisposable
         _apiKey = apiKey;
         _logger = logger;
         _http = new HttpClient();
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd($"CSSCord/{pluginVersion}");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd($"CS2Cord/{pluginVersion}");
     }
 
     public async Task<string?> GetAvatarUrlAsync(ulong steamId64)

@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CSSCord.Processing;
+namespace CS2Cord.Processing;
 
 public static class TextProcessor
 {

@@ -1,11 +1,11 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using CSSCord.Cache;
-using CSSCord.Models;
+using CS2Cord.Cache;
+using CS2Cord.Models;
 using Microsoft.Extensions.Logging;
 
-namespace CSSCord.Services;
+namespace CS2Cord.Services;
 
 public class DiscordApiService : IDisposable
 {
@@ -47,7 +47,7 @@ public class DiscordApiService : IDisposable
 
         _http = new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(2) });
         _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", botToken);
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd($"CSSCord/{pluginVersion}");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd($"CS2Cord/{pluginVersion}");
     }
 
     public async Task<List<DiscordMessage>> FetchMessagesAsync(string? afterId, int limit = 5)

@@ -23,13 +23,13 @@ jobs:
 
       - name: Package
         run: |
-          mkdir -p counterstrikesharp/plugins/CSSCord
-          cp bin/Release/net8.0/publish/CSSCord.dll       counterstrikesharp/plugins/CSSCord/
-          cp bin/Release/net8.0/publish/CSSCord.deps.json counterstrikesharp/plugins/CSSCord/
-          cp bin/Release/net8.0/publish/CSSCord.pdb       counterstrikesharp/plugins/CSSCord/
-          zip -r CSSCord-${{ github.ref_name }}.zip counterstrikesharp/
+          mkdir -p counterstrikesharp/plugins/CS2Cord
+          cp bin/Release/net8.0/publish/CS2Cord.dll       counterstrikesharp/plugins/CS2Cord/
+          cp bin/Release/net8.0/publish/CS2Cord.deps.json counterstrikesharp/plugins/CS2Cord/
+          cp bin/Release/net8.0/publish/CS2Cord.pdb       counterstrikesharp/plugins/CS2Cord/
+          zip -r CS2Cord-${{ github.ref_name }}.zip counterstrikesharp/
 
       - name: Upload release asset
-        run: gh release upload ${{ github.ref_name }} CSSCord-${{ github.ref_name }}.zip
+        run: gh release upload ${{ github.ref_name }} CS2Cord-${{ github.ref_name }}.zip
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

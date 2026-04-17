@@ -5,18 +5,18 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Timers;
-using CSSCord.Config;
-using CSSCord.Processing;
-using CSSCord.Services;
+using CS2Cord.Config;
+using CS2Cord.Processing;
+using CS2Cord.Services;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace CSSCord;
+namespace CS2Cord;
 
 [MinimumApiVersion(80)]
-public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
+public class CS2CordPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
-    public override string ModuleName => "CSSCord";
+    public override string ModuleName => "CS2Cord";
     public override string ModuleVersion => "1.0.0";
     public override string ModuleAuthor => "johnqherman";
     public override string ModuleDescription => "Discord ↔ CS2 two-way chat integration";
@@ -68,7 +68,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
         if (_credentials.IsValid())
             StartPollingTimer();
         else
-            Logger.LogWarning("[CSSCord] credentials.json is incomplete — Discord integration disabled.");
+            Logger.LogWarning("[CS2Cord] credentials.json is incomplete — Discord integration disabled.");
     }
 
     public override void Unload(bool hotReload)
@@ -219,7 +219,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
             var example = new CredentialsConfig();
             File.WriteAllText(path, JsonSerializer.Serialize(example,
                 new JsonSerializerOptions { WriteIndented = true }));
-            Logger.LogWarning("[CSSCord] Created credentials.json at {Path} — fill in your tokens.", path);
+            Logger.LogWarning("[CS2Cord] Created credentials.json at {Path} — fill in your tokens.", path);
             return example;
         }
 
@@ -230,7 +230,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[CSSCord] Failed to parse credentials.json");
+            Logger.LogError(ex, "[CS2Cord] Failed to parse credentials.json");
             return new CredentialsConfig();
         }
     }
