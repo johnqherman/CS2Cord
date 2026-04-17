@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CS2Cord.Config;
 using CS2Cord.Processing;
@@ -12,11 +13,11 @@ public class WebhookService : IDisposable
 {
     private static readonly Regex PingPattern = new(@"(?<!<)@([^\s@#<>]+)", RegexOptions.Compiled);
 
-    private readonly HttpClient _http;
-    private readonly string _webhookUrl;
+    private readonly HttpClient        _http;
+    private readonly string            _webhookUrl;
     private readonly DiscordApiService _api;
-    private readonly PluginConfig _config;
-    private readonly ILogger _logger;
+    private readonly PluginConfig      _config;
+    private readonly ILogger           _logger;
 
     public WebhookService(
         string webhookUrl,
@@ -26,9 +27,9 @@ public class WebhookService : IDisposable
         ILogger logger)
     {
         _webhookUrl = webhookUrl;
-        _api = api;
-        _config = config;
-        _logger = logger;
+        _api        = api;
+        _config     = config;
+        _logger     = logger;
 
         _http = new HttpClient();
         _http.DefaultRequestHeaders.UserAgent.ParseAdd($"CS2Cord/{pluginVersion}");
@@ -41,13 +42,11 @@ public class WebhookService : IDisposable
         if (_config.AllowRolePings) await _api.RefreshGuildRolesAsync();
 
         var processed = TextProcessor.EscapeUserContent(content);
-        processed = EmojiProcessor.ShortcodesToGuildEmoji(processed, _api.GuildEmojiCache);
+        processed = EmojiProcessor.ShortcodesToGuildEmoji(processed, _api.GuildEmojis);
         processed = EmojiProcessor.ShortcodesToUnicode(processed);
 
-        if (_config.AllowUserPings)
-            processed = ConvertUserPings(processed);
-        if (_config.AllowRolePings)
-            processed = ConvertRolePings(processed);
+        if (_config.AllowUserPings)  processed = ConvertUserPings(processed);
+        if (_config.AllowRolePings)  processed = ConvertRolePings(processed);
 
         await PostWebhookAsync(username, processed, avatarUrl);
     }
@@ -61,13 +60,10 @@ public class WebhookService : IDisposable
 
         try
         {
-            var payload = avatarUrl is not null
-                ? (object)new { username, content, avatar_url = avatarUrl }
-                : new { username, content };
-
-            var json = JsonSerializer.Serialize(payload);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await _http.PostAsync(_webhookUrl, httpContent);
+            var payload  = new WebhookPayload(username, content, avatarUrl);
+            var json     = JsonSerializer.Serialize(payload);
+            var response = await _http.PostAsync(_webhookUrl,
+                new StringContent(json, Encoding.UTF8, "application/json"));
 
             if (!response.IsSuccessStatusCode && (int)response.StatusCode != 204)
                 _logger.LogWarning("Webhook POST returned {Status}", response.StatusCode);
@@ -82,7 +78,7 @@ public class WebhookService : IDisposable
         PingPattern.Replace(text, m =>
         {
             var name = m.Groups[1].Value;
-            return _api.GuildMemberCache.TryGetValue(name, out var userId)
+            return _api.GuildMembers.TryGetValue(name, out var userId)
                 ? $"<@{userId}>"
                 : m.Value;
         });
@@ -91,10 +87,15 @@ public class WebhookService : IDisposable
         PingPattern.Replace(text, m =>
         {
             var name = m.Groups[1].Value;
-            return _api.GuildRoleCache.TryGetValue(name, out var roleId)
+            return _api.GuildRoles.TryGetValue(name, out var roleId)
                 ? $"<@&{roleId}>"
                 : m.Value;
         });
 
     public void Dispose() => _http.Dispose();
+
+    private record WebhookPayload(
+        [property: JsonPropertyName("username")]   string  Username,
+        [property: JsonPropertyName("content")]    string  Content,
+        [property: JsonPropertyName("avatar_url")] string? AvatarUrl);
 }

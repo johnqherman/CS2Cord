@@ -1,3 +1,4 @@
+using CounterStrikeSharp.API.Modules.Entities;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -13,7 +14,7 @@ public static class TextProcessor
         @":\w+(?:\\_\w+)+:",
         RegexOptions.Compiled);
 
-    private static readonly char[] MarkdownChars = ['*', '_', '`', '~', '|', '>', '\\'];
+    private static readonly HashSet<char> MarkdownChars = ['*', '_', '`', '~', '|', '>', '\\'];
 
     private const string ZeroWidthSpace = "\u200B";
 
@@ -55,6 +56,29 @@ public static class TextProcessor
     public static string FormatMapChangeMessage(string mapName) =>
         $"Map changed to **{EscapeMarkdown(mapName)}**";
 
+    public static string? FormatSteamId(SteamID? steamId, int showSteamId) =>
+        steamId is null ? null : showSteamId switch
+        {
+            1 => steamId.SteamId3,
+            2 => steamId.SteamId2,
+            _ => null
+        };
+
+    public static string? FormatDisconnectReason(int reason) => reason switch
+    {
+        1  => "Client quit",
+        2  => "Timed out",
+        3  => "Kicked",
+        4  => "Kicked by vote",
+        5  => "Banned",
+        6  => "Connection lost",
+        7  => "No Steam logon",
+        8  => "VAC banned",
+        9  => "Steam logon failure",
+        10 => "Connection failed",
+        _  => $"Reason {reason}"
+    };
+
     public static bool IsValidHexColor(string color) =>
         color.Length == 6 && color.All(c => "0123456789abcdefABCDEF".Contains(c));
 
@@ -63,7 +87,7 @@ public static class TextProcessor
         var sb = new StringBuilder(text.Length + 8);
         foreach (char c in text)
         {
-            if (Array.IndexOf(MarkdownChars, c) >= 0)
+            if (MarkdownChars.Contains(c))
                 sb.Append('\\');
             sb.Append(c);
         }

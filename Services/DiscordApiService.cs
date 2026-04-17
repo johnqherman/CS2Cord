@@ -9,35 +9,39 @@ namespace CS2Cord.Services;
 
 public class DiscordApiService : IDisposable
 {
-    private const string ApiBase = "https://discord.com/api/v10";
+    private const string ApiBase        = "https://discord.com/api/v10";
+    private const int    MembersPageSize = 1000;
 
     private readonly HttpClient _http;
-    private readonly string _channelId;
-    private readonly string _guildId;
-    private readonly ILogger _logger;
+    private readonly string     _channelId;
+    private readonly string     _guildId;
+    private readonly ILogger    _logger;
 
-    public TimedCache<string> UserColorCache { get; } = new(512);
-    public TimedCache<string> UserDisplayNameCache { get; } = new(512);
-    public TimedCache<string> UserNickCache { get; } = new(512);
-    public TimedCache<string> ChannelNameCache { get; } = new(512);
-    public TimedCache<string> RoleNameCache { get; } = new(512);
+    private readonly TimedCache<string> _userColorCache       = new(512);
+    private readonly TimedCache<string> _userDisplayNameCache = new(512);
+    private readonly TimedCache<string> _userNickCache        = new(512);
+    private readonly TimedCache<string> _channelNameCache     = new(512);
+    private readonly TimedCache<string> _roleNameCache        = new(512);
 
-    public Dictionary<string, string> GuildMemberCache { get; } = new(StringComparer.OrdinalIgnoreCase);
-    public Dictionary<string, string> GuildRoleCache { get; } = new(StringComparer.OrdinalIgnoreCase);
-    public Dictionary<string, GuildEmoji> GuildEmojiCache { get; } = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string>    _guildMembers = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string>    _guildRoles   = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, GuildEmoji> _guildEmojis = new(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly TimeSpan ColorTtl = TimeSpan.FromHours(1);
-    private static readonly TimeSpan DisplayNameTtl = TimeSpan.FromDays(1);
-    private static readonly TimeSpan NickTtl = TimeSpan.FromMinutes(30);
-    private static readonly TimeSpan ChannelNameTtl = TimeSpan.FromDays(1);
-    private static readonly TimeSpan RoleNameTtl = TimeSpan.FromDays(1);
+    public IReadOnlyDictionary<string, string>     GuildMembers => _guildMembers;
+    public IReadOnlyDictionary<string, string>     GuildRoles   => _guildRoles;
+    public IReadOnlyDictionary<string, GuildEmoji> GuildEmojis  => _guildEmojis;
+
+    private static readonly TimeSpan ColorTtl          = TimeSpan.FromHours(1);
+    private static readonly TimeSpan DisplayNameTtl    = TimeSpan.FromDays(1);
+    private static readonly TimeSpan NickTtl           = TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan ChannelNameTtl    = TimeSpan.FromDays(1);
+    private static readonly TimeSpan RoleNameTtl       = TimeSpan.FromDays(1);
     private static readonly TimeSpan BulkRefreshInterval = TimeSpan.FromHours(1);
 
-    private DateTime _lastMemberFetch = DateTime.MinValue;
-    private DateTime _lastRoleFetch   = DateTime.MinValue;
-    private DateTime _lastEmojiFetch  = DateTime.MinValue;
-
-    private List<DiscordRole> _roleList = new();
+    private DateTime      _lastMemberFetch = DateTime.MinValue;
+    private DateTime      _lastRoleFetch   = DateTime.MinValue;
+    private DateTime      _lastEmojiFetch  = DateTime.MinValue;
+    private List<DiscordRole> _roleList    = [];
 
     public DiscordApiService(string botToken, string channelId, string guildId, string pluginVersion, ILogger logger)
     {
@@ -59,43 +63,42 @@ public class DiscordApiService : IDisposable
         var response = await _http.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
-        var messages = await response.Content.ReadFromJsonAsync<List<DiscordMessage>>();
-        return messages ?? new List<DiscordMessage>();
+        return await response.Content.ReadFromJsonAsync<List<DiscordMessage>>() ?? [];
     }
 
     public async Task<string?> GetUserDisplayNameAsync(string userId)
     {
-        if (UserDisplayNameCache.TryGet(userId, out var name))
+        if (_userDisplayNameCache.TryGet(userId, out var name))
             return name;
 
         var member = await FetchMemberAsync(userId);
         if (member is null) return null;
 
         var resolved = ResolveDisplayName(member);
-        UserDisplayNameCache.Set(userId, resolved, DisplayNameTtl);
+        _userDisplayNameCache.Set(userId, resolved, DisplayNameTtl);
 
         if (member.Nick is not null)
-            UserNickCache.Set(userId, member.Nick, NickTtl);
+            _userNickCache.Set(userId, member.Nick, NickTtl);
 
         return resolved;
     }
 
     public async Task<string?> GetUserNicknameAsync(string userId)
     {
-        if (UserNickCache.TryGet(userId, out var nick))
+        if (_userNickCache.TryGet(userId, out var nick))
             return nick;
 
         var member = await FetchMemberAsync(userId);
         if (member is null) return null;
 
         var resolved = ResolveDisplayName(member);
-        UserNickCache.Set(userId, resolved, NickTtl);
+        _userNickCache.Set(userId, resolved, NickTtl);
         return resolved;
     }
 
     public async Task<string?> GetUserRoleColorAsync(string userId)
     {
-        if (UserColorCache.TryGet(userId, out var color))
+        if (_userColorCache.TryGet(userId, out var color))
             return color;
 
         await RefreshGuildRolesAsync();
@@ -105,14 +108,14 @@ public class DiscordApiService : IDisposable
 
         var highestColor = ResolveHighestRoleColor(member.Roles);
         if (highestColor is not null)
-            UserColorCache.Set(userId, highestColor, ColorTtl);
+            _userColorCache.Set(userId, highestColor, ColorTtl);
 
         return highestColor;
     }
 
     public async Task<string?> GetChannelNameAsync(string channelId)
     {
-        if (ChannelNameCache.TryGet(channelId, out var name))
+        if (_channelNameCache.TryGet(channelId, out var name))
             return name;
 
         try
@@ -120,7 +123,7 @@ public class DiscordApiService : IDisposable
             var channel = await _http.GetFromJsonAsync<DiscordChannel>($"{ApiBase}/channels/{channelId}");
             if (channel?.Name is not null)
             {
-                ChannelNameCache.Set(channelId, channel.Name, ChannelNameTtl);
+                _channelNameCache.Set(channelId, channel.Name, ChannelNameTtl);
                 return channel.Name;
             }
         }
@@ -133,15 +136,12 @@ public class DiscordApiService : IDisposable
 
     public async Task<string?> GetRoleNameAsync(string roleId)
     {
-        if (RoleNameCache.TryGet(roleId, out var name))
+        if (_roleNameCache.TryGet(roleId, out var name))
             return name;
 
         await RefreshGuildRolesAsync();
 
-        if (RoleNameCache.TryGet(roleId, out name))
-            return name;
-
-        return null;
+        return _roleNameCache.TryGet(roleId, out name) ? name : null;
     }
 
     public async Task RefreshGuildMembersAsync()
@@ -153,12 +153,12 @@ public class DiscordApiService : IDisposable
         try
         {
             string? afterId = null;
-            GuildMemberCache.Clear();
+            _guildMembers.Clear();
             while (true)
             {
                 var url = afterId is not null
-                    ? $"{ApiBase}/guilds/{_guildId}/members?limit=1000&after={afterId}"
-                    : $"{ApiBase}/guilds/{_guildId}/members?limit=1000";
+                    ? $"{ApiBase}/guilds/{_guildId}/members?limit={MembersPageSize}&after={afterId}"
+                    : $"{ApiBase}/guilds/{_guildId}/members?limit={MembersPageSize}";
 
                 var members = await _http.GetFromJsonAsync<List<DiscordMember>>(url);
                 if (members is null || members.Count == 0) break;
@@ -167,12 +167,12 @@ public class DiscordApiService : IDisposable
                 {
                     if (m.User?.Id is null) continue;
                     var displayName = ResolveDisplayName(m);
-                    GuildMemberCache[displayName] = m.User.Id;
+                    _guildMembers[displayName] = m.User.Id;
                     if (m.User.Username is not null)
-                        GuildMemberCache[m.User.Username] = m.User.Id;
+                        _guildMembers[m.User.Username] = m.User.Id;
                 }
 
-                if (members.Count < 1000) break;
+                if (members.Count < MembersPageSize) break;
                 afterId = members[^1].User?.Id;
             }
         }
@@ -195,13 +195,13 @@ public class DiscordApiService : IDisposable
             if (roles is null) return;
 
             _roleList = roles;
-            GuildRoleCache.Clear();
+            _guildRoles.Clear();
             foreach (var role in roles)
             {
                 if (role.Name is not null && role.Id is not null)
                 {
-                    GuildRoleCache[role.Name] = role.Id;
-                    RoleNameCache.Set(role.Id, role.Name, RoleNameTtl);
+                    _guildRoles[role.Name] = role.Id;
+                    _roleNameCache.Set(role.Id, role.Name, RoleNameTtl);
                 }
             }
         }
@@ -223,11 +223,11 @@ public class DiscordApiService : IDisposable
             var emojis = await _http.GetFromJsonAsync<List<DiscordEmoji>>($"{ApiBase}/guilds/{_guildId}/emojis");
             if (emojis is null) return;
 
-            GuildEmojiCache.Clear();
+            _guildEmojis.Clear();
             foreach (var emoji in emojis)
             {
                 if (emoji.Name is not null && emoji.Id is not null)
-                    GuildEmojiCache[emoji.Name] = new GuildEmoji(emoji.Id, emoji.Animated);
+                    _guildEmojis[emoji.Name] = new GuildEmoji(emoji.Id, emoji.Animated);
             }
         }
         catch (Exception ex)
