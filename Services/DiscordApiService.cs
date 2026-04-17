@@ -274,7 +274,7 @@ public class DiscordApiService : IDisposable
         }
 
         if (best is null || best.Color is null or 0) return null;
-        return best.Color.Value.ToString("X6");
+        return best.Color.Value.ToString("x6");
     }
 
     public void Dispose() => _http.Dispose();

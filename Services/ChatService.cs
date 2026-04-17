@@ -1,5 +1,4 @@
 using CounterStrikeSharp.API;
-using CounterStrikeSharp.API.Modules.Utils;
 using CSSCord.Config;
 
 namespace CSSCord.Services;
@@ -14,9 +13,9 @@ public class ChatService
     {
         Server.NextFrame(() =>
         {
-            var colorReset = ChatColors.Default.ToString();
-            var nameColor = $"\x07{roleColorHex ?? _config.DiscordColor}";
-            var prefixColor = ChatColors.Purple.ToString();
+            const string colorReset = "\x01";
+            var nameColor = $"\x07{(roleColorHex ?? _config.DiscordColor).ToLowerInvariant()}";
+            const string prefixColor = "\x075865f2";
 
             var line = _config.ShowDiscordPrefix
                 ? $" {prefixColor}[Discord]{colorReset} {nameColor}{displayName}{colorReset} :  {content}"
