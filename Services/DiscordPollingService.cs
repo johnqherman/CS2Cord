@@ -57,11 +57,9 @@ public class DiscordPollingService
 
             if (messages.Count == 0) return;
 
-            messages.Reverse();
-
             if (!_seeded)
             {
-                _lastMessageId = messages[^1].Id;
+                _lastMessageId = messages[0].Id;
                 _seeded = true;
                 return;
             }
@@ -74,15 +72,13 @@ public class DiscordPollingService
                 if (IsAlreadyProcessed(msg.Id)) continue;
 
                 RecordId(msg.Id);
-                _lastMessageId = msg.Id;
 
                 var displayName = msg.Author.GlobalName ?? msg.Author.Username ?? "Unknown";
                 onMessage(msg.Author.Id, displayName, msg.Content);
                 dispatched++;
             }
 
-            if (messages.Count > 0)
-                _lastMessageId = messages[^1].Id;
+            _lastMessageId = messages[^1].Id;
         }
         finally
         {

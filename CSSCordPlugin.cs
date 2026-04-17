@@ -93,7 +93,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
     private HookResult OnPlayerChat(EventPlayerChat @event, GameEventInfo info)
     {
-        var player = Utilities.GetPlayerFromIndex(@event.Userid);
+        var player = @event.Userid;
         if (player is null || !player.IsValid || player.IsBot) return HookResult.Continue;
 
         var name = player.PlayerName;
