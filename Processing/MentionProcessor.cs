@@ -29,6 +29,7 @@ public class MentionProcessor
         content = await ResolveChannelMentionsAsync(content);
         content = await ResolveRoleMentionsAsync(content);
         content = EmojiProcessor.StripCustomEmoji(content);
+        content = EmojiProcessor.UnicodeToShortcode(content);
 
         string? resolvedName = null;
         if (_config.UseNicknames)
