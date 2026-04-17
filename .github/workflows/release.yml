@@ -1,0 +1,35 @@
+name: Build & Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish
+        run: dotnet publish -c Release
+
+      - name: Package
+        run: |
+          mkdir -p counterstrikesharp/plugins/CSSCord
+          cp bin/Release/net8.0/publish/CSSCord.dll       counterstrikesharp/plugins/CSSCord/
+          cp bin/Release/net8.0/publish/CSSCord.deps.json counterstrikesharp/plugins/CSSCord/
+          cp bin/Release/net8.0/publish/CSSCord.pdb       counterstrikesharp/plugins/CSSCord/
+          zip -r CSSCord-${{ github.ref_name }}.zip counterstrikesharp/
+
+      - name: Upload release asset
+        run: gh release upload ${{ github.ref_name }} CSSCord-${{ github.ref_name }}.zip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
