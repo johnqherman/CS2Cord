@@ -32,7 +32,7 @@ Located in the plugin directory alongside `CSSCord.dll`.
 | `ChannelId`   | ID of the channel to read messages from               |
 | `GuildId`     | ID of your Discord server                             |
 | `WebhookUrl`  | Webhook URL for the same channel                      |
-| `SteamApiKey` | Steam Web API key (optional — enables player avatars) |
+| `SteamApiKey` | Steam Web API key (optional, enables player avatars) |
 
 ### `CSSCord.json`
 
@@ -40,7 +40,7 @@ Auto-created by CounterStrikeSharp in `configs/plugins/CSSCord/`.
 
 | Field                    | Default  | Description                                                     |
 | ------------------------ | -------- | --------------------------------------------------------------- |
-| `PollingIntervalSeconds` | `1.0`    | How often to poll Discord for new messages (1–10s)              |
+| `PollingIntervalSeconds` | `1.0`    | How often to poll Discord for new messages (1-10s)              |
 | `LogConnections`         | `1`      | `0` = off, `1` = name + SteamID, `2` = include IP               |
 | `LogMapChanges`          | `false`  | Post map changes to Discord                                     |
 | `UseRoleColors`          | `true`   | Color player names by their top Discord role color              |
