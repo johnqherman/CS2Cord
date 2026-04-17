@@ -1,3 +1,4 @@
+using CSSCord.Models;
 using Microsoft.Extensions.Logging;
 
 namespace CSSCord.Services;
@@ -5,20 +6,20 @@ namespace CSSCord.Services;
 public class DiscordPollingService
 {
     private string? _lastMessageId;
-    private bool    _seeded;
+    private bool _seeded;
 
-    private readonly HashSet<string> _processedIds    = new();
-    private readonly Queue<string>   _idFifo          = new();
-    private const    int             MaxProcessedIds  = 512;
+    private readonly HashSet<string> _processedIds = new();
+    private readonly Queue<string> _idFifo = new();
+    private const int MaxProcessedIds = 512;
 
-    private       int      _failedRequests;
-    private       DateTime _nextRetryAt    = DateTime.MinValue;
-    private const double   MaxRetrySeconds = 60.0;
+    private int _failedRequests;
+    private DateTime _nextRetryAt = DateTime.MinValue;
+    private const double MaxRetrySeconds = 60.0;
 
-    private readonly SemaphoreSlim _pollLock    = new(1, 1);
-    private const    int           MaxBatchSize = 5;
+    private readonly SemaphoreSlim _pollLock = new(1, 1);
+    private const int MaxBatchSize = 5;
 
-    private readonly float   _pollingIntervalSeconds;
+    private readonly float _pollingIntervalSeconds;
     private readonly ILogger _logger;
 
     public DiscordPollingService(float pollingIntervalSeconds, ILogger logger)

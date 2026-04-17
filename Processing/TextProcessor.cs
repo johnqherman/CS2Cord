@@ -1,10 +1,11 @@
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace CSSCord.Processing;
 
 public static class TextProcessor
 {
-    private static readonly Regex  UrlRegex      = new(
+    private static readonly Regex UrlRegex = new(
         @"https?://[^\s<>""]+",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -19,21 +20,10 @@ public static class TextProcessor
     public static string EscapeUserContent(string text)
     {
         text = UrlRegex.Replace(text, m => $"<{m.Value}>");
-
-        var sb = new System.Text.StringBuilder(text.Length + 16);
-        foreach (char c in text)
-        {
-            if (Array.IndexOf(MarkdownChars, c) >= 0)
-                sb.Append('\\');
-            sb.Append(c);
-        }
-        text = sb.ToString();
-
+        text = EscapeMarkdown(text);
         text = text.Replace("@everyone", $"@{ZeroWidthSpace}everyone");
-        text = text.Replace("@here", $"@{ZeroWidthSpace}here");
-
+        text = text.Replace("@here",     $"@{ZeroWidthSpace}here");
         text = EmojiShortcodeRegex.Replace(text, m => m.Value.Replace("\\_", "_"));
-
         return text;
     }
 
@@ -70,7 +60,7 @@ public static class TextProcessor
 
     private static string EscapeMarkdown(string text)
     {
-        var sb = new System.Text.StringBuilder(text.Length + 8);
+        var sb = new StringBuilder(text.Length + 8);
         foreach (char c in text)
         {
             if (Array.IndexOf(MarkdownChars, c) >= 0)

@@ -1,9 +1,8 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using CSSCord.Cache;
-using CSSCord.Processing;
+using CSSCord.Models;
 using Microsoft.Extensions.Logging;
 
 namespace CSSCord.Services;
@@ -13,25 +12,25 @@ public class DiscordApiService : IDisposable
     private const string ApiBase = "https://discord.com/api/v10";
 
     private readonly HttpClient _http;
-    private readonly string     _channelId;
-    private readonly string     _guildId;
-    private readonly ILogger    _logger;
+    private readonly string _channelId;
+    private readonly string _guildId;
+    private readonly ILogger _logger;
 
-    public TimedCache<string> UserColorCache        { get; } = new(512);
-    public TimedCache<string> UserDisplayNameCache  { get; } = new(512);
-    public TimedCache<string> UserNickCache         { get; } = new(512);
-    public TimedCache<string> ChannelNameCache      { get; } = new(512);
-    public TimedCache<string> RoleNameCache         { get; } = new(512);
+    public TimedCache<string> UserColorCache { get; } = new(512);
+    public TimedCache<string> UserDisplayNameCache { get; } = new(512);
+    public TimedCache<string> UserNickCache { get; } = new(512);
+    public TimedCache<string> ChannelNameCache { get; } = new(512);
+    public TimedCache<string> RoleNameCache { get; } = new(512);
 
-    public Dictionary<string, string>     GuildMemberCache { get; } = new(StringComparer.OrdinalIgnoreCase);
-    public Dictionary<string, string>     GuildRoleCache   { get; } = new(StringComparer.OrdinalIgnoreCase);
-    public Dictionary<string, GuildEmoji> GuildEmojiCache  { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, string> GuildMemberCache { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, string> GuildRoleCache { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, GuildEmoji> GuildEmojiCache { get; } = new(StringComparer.OrdinalIgnoreCase);
 
-    private static readonly TimeSpan ColorTtl            = TimeSpan.FromHours(1);
-    private static readonly TimeSpan DisplayNameTtl      = TimeSpan.FromDays(1);
-    private static readonly TimeSpan NickTtl             = TimeSpan.FromMinutes(30);
-    private static readonly TimeSpan ChannelNameTtl      = TimeSpan.FromDays(1);
-    private static readonly TimeSpan RoleNameTtl         = TimeSpan.FromDays(1);
+    private static readonly TimeSpan ColorTtl = TimeSpan.FromHours(1);
+    private static readonly TimeSpan DisplayNameTtl = TimeSpan.FromDays(1);
+    private static readonly TimeSpan NickTtl = TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan ChannelNameTtl = TimeSpan.FromDays(1);
+    private static readonly TimeSpan RoleNameTtl = TimeSpan.FromDays(1);
     private static readonly TimeSpan BulkRefreshInterval = TimeSpan.FromHours(1);
 
     private DateTime _lastMemberFetch = DateTime.MinValue;
@@ -43,8 +42,8 @@ public class DiscordApiService : IDisposable
     public DiscordApiService(string botToken, string channelId, string guildId, string pluginVersion, ILogger logger)
     {
         _channelId = channelId;
-        _guildId = guildId;
-        _logger = logger;
+        _guildId   = guildId;
+        _logger    = logger;
 
         _http = new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(2) });
         _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", botToken);
@@ -279,35 +278,3 @@ public class DiscordApiService : IDisposable
 
     public void Dispose() => _http.Dispose();
 }
-
-public record DiscordMessage(
-    [property: JsonPropertyName("id")]       string             Id,
-    [property: JsonPropertyName("content")]  string             Content,
-    [property: JsonPropertyName("author")]   DiscordUser        Author,
-    [property: JsonPropertyName("mentions")] List<DiscordUser>? Mentions);
-
-public record DiscordUser(
-    [property: JsonPropertyName("id")]           string  Id,
-    [property: JsonPropertyName("username")]     string? Username,
-    [property: JsonPropertyName("global_name")]  string? GlobalName,
-    [property: JsonPropertyName("bot")]          bool?   Bot);
-
-public record DiscordMember(
-    [property: JsonPropertyName("user")]  DiscordUser?  User,
-    [property: JsonPropertyName("nick")]  string?       Nick,
-    [property: JsonPropertyName("roles")] List<string>? Roles);
-
-public record DiscordRole(
-    [property: JsonPropertyName("id")]       string? Id,
-    [property: JsonPropertyName("name")]     string? Name,
-    [property: JsonPropertyName("color")]    int?    Color,
-    [property: JsonPropertyName("position")] int     Position);
-
-public record DiscordChannel(
-    [property: JsonPropertyName("id")]   string  Id,
-    [property: JsonPropertyName("name")] string? Name);
-
-public record DiscordEmoji(
-    [property: JsonPropertyName("id")]       string? Id,
-    [property: JsonPropertyName("name")]     string? Name,
-    [property: JsonPropertyName("animated")] bool    Animated);

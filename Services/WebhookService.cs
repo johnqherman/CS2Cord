@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using CSSCord.Config;
 using CSSCord.Processing;
 using Microsoft.Extensions.Logging;
@@ -9,11 +10,13 @@ namespace CSSCord.Services;
 
 public class WebhookService : IDisposable
 {
-    private readonly HttpClient        _http;
-    private readonly string            _webhookUrl;
+    private static readonly Regex PingPattern = new(@"(?<!<)@([^\s@#<>]+)", RegexOptions.Compiled);
+
+    private readonly HttpClient _http;
+    private readonly string _webhookUrl;
     private readonly DiscordApiService _api;
-    private readonly PluginConfig      _config;
-    private readonly ILogger           _logger;
+    private readonly PluginConfig _config;
+    private readonly ILogger _logger;
 
     public WebhookService(
         string webhookUrl,
@@ -76,7 +79,7 @@ public class WebhookService : IDisposable
     }
 
     private string ConvertUserPings(string text) =>
-        System.Text.RegularExpressions.Regex.Replace(text, @"(?<!<)@([^\s@#<>]+)", m =>
+        PingPattern.Replace(text, m =>
         {
             var name = m.Groups[1].Value;
             return _api.GuildMemberCache.TryGetValue(name, out var userId)
@@ -85,7 +88,7 @@ public class WebhookService : IDisposable
         });
 
     private string ConvertRolePings(string text) =>
-        System.Text.RegularExpressions.Regex.Replace(text, @"(?<!<)@([^\s@#<>]+)", m =>
+        PingPattern.Replace(text, m =>
         {
             var name = m.Groups[1].Value;
             return _api.GuildRoleCache.TryGetValue(name, out var roleId)

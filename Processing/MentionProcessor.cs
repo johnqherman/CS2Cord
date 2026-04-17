@@ -7,8 +7,8 @@ namespace CSSCord.Processing;
 public class MentionProcessor
 {
     private readonly DiscordApiService _api;
-    private readonly ChatService       _chat;
-    private readonly PluginConfig      _config;
+    private readonly ChatService _chat;
+    private readonly PluginConfig _config;
 
     private static readonly Regex UserMentionRegex    = new(@"<@!?(\d+)>", RegexOptions.Compiled);
     private static readonly Regex ChannelMentionRegex = new(@"<#(\d+)>", RegexOptions.Compiled);
@@ -16,8 +16,8 @@ public class MentionProcessor
 
     public MentionProcessor(DiscordApiService api, ChatService chat, PluginConfig config)
     {
-        _api = api;
-        _chat = chat;
+        _api    = api;
+        _chat   = chat;
         _config = config;
     }
 
