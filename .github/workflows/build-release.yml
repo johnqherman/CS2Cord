@@ -1,0 +1,39 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish
+        run: dotnet publish CSSCord.csproj -c Release -o ./publish
+
+      - name: Verify output
+        run: ls -la ./publish/
+
+      - name: Create plugin archive
+        run: |
+          mkdir -p release/addons/counterstrikesharp/plugins/CSSCord
+          cp publish/CSSCord.dll release/addons/counterstrikesharp/plugins/CSSCord/
+          cp publish/CSSCord.deps.json release/addons/counterstrikesharp/plugins/CSSCord/
+          cp publish/CSSCord.pdb release/addons/counterstrikesharp/plugins/CSSCord/
+          cd release && zip -r ../CSSCord.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: CSSCord.zip
+          generate_release_notes: true
