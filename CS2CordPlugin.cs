@@ -5,18 +5,18 @@ using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Timers;
-using CSSCord.Config;
-using CSSCord.Processing;
-using CSSCord.Services;
+using CS2Cord.Config;
+using CS2Cord.Processing;
+using CS2Cord.Services;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace CSSCord;
+namespace CS2Cord;
 
 [MinimumApiVersion(80)]
-public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
+public class CS2CordPlugin : BasePlugin, IPluginConfig<PluginConfig>
 {
-    public override string ModuleName => "CSSCord";
+    public override string ModuleName => "CS2Cord";
     public override string ModuleVersion => "1.0.0";
     public override string ModuleAuthor => "johnqherman";
     public override string ModuleDescription => "Discord ↔ CS2 two-way chat integration";
@@ -68,7 +68,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
         if (_credentials.IsValid())
             StartPollingTimer();
         else
-            Logger.LogWarning("[CSSCord] credentials.json is incomplete — Discord integration disabled.");
+            Logger.LogWarning("[CS2Cord] credentials.json is incomplete — Discord integration disabled.");
     }
 
     public override void Unload(bool hotReload)
@@ -93,7 +93,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
 
     private HookResult OnPlayerChat(EventPlayerChat @event, GameEventInfo info)
     {
-        var player = Utilities.GetPlayerFromIndex(@event.Userid);
+        var player = Utilities.GetPlayerFromUserid(@event.Userid);
         if (player is null || !player.IsValid || player.IsBot) return HookResult.Continue;
 
         var name = player.PlayerName;
@@ -103,7 +103,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
         {
             var steamId = FormatSteamId(player.AuthorizedSteamID);
             if (steamId is not null)
-                displayName += $" ({steamId})";
+                displayName += Config.ShowSteamId == 1 ? $" {steamId}" : $" ({steamId})";
         }
 
         var steamId64 = player.AuthorizedSteamID?.SteamId64 ?? 0;
@@ -142,7 +142,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
             var ip = Config.LogConnections >= 2 ? player.IpAddress : null;
             var msg = TextProcessor.FormatConnectionMessage(
                 player.PlayerName, steamId, ip,
-                isDisconnect: false, disconnectReason: null, Config.LogConnections);
+                isDisconnect: false, disconnectReason: null, Config.LogConnections, Config.ShowSteamId);
             _ = _webhook.SendServerEventAsync(GetServerName(), msg);
         }
     }
@@ -169,7 +169,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
             var reason = @event.Reason > 0 ? FormatDisconnectReason(@event.Reason) : null;
             var msg = TextProcessor.FormatConnectionMessage(
                 name, steamId, ipAddress: null,
-                isDisconnect: true, disconnectReason: reason, Config.LogConnections);
+                isDisconnect: true, disconnectReason: reason, Config.LogConnections, Config.ShowSteamId);
             _ = _webhook.SendServerEventAsync(GetServerName(), msg);
         }
 
@@ -219,7 +219,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
             var example = new CredentialsConfig();
             File.WriteAllText(path, JsonSerializer.Serialize(example,
                 new JsonSerializerOptions { WriteIndented = true }));
-            Logger.LogWarning("[CSSCord] Created credentials.json at {Path} — fill in your tokens.", path);
+            Logger.LogWarning("[CS2Cord] Created credentials.json at {Path} — fill in your tokens.", path);
             return example;
         }
 
@@ -230,7 +230,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "[CSSCord] Failed to parse credentials.json");
+            Logger.LogError(ex, "[CS2Cord] Failed to parse credentials.json");
             return new CredentialsConfig();
         }
     }

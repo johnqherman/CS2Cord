@@ -1,8 +1,9 @@
 using System.Text;
 using System.Text.RegularExpressions;
-using CSSCord.Data;
+using CS2Cord.Data;
+using CS2Cord.Models;
 
-namespace CSSCord.Processing;
+namespace CS2Cord.Processing;
 
 public static class EmojiProcessor
 {
@@ -71,5 +72,3 @@ public static class EmojiProcessor
 
     private static string UnescapeEmojiName(string name) => name.Replace("\\_", "_");
 }
-
-public readonly record struct GuildEmoji(string Id, bool Animated);

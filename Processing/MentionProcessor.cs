@@ -1,14 +1,14 @@
 using System.Text.RegularExpressions;
-using CSSCord.Config;
-using CSSCord.Services;
+using CS2Cord.Config;
+using CS2Cord.Services;
 
-namespace CSSCord.Processing;
+namespace CS2Cord.Processing;
 
 public class MentionProcessor
 {
     private readonly DiscordApiService _api;
-    private readonly ChatService       _chat;
-    private readonly PluginConfig      _config;
+    private readonly ChatService _chat;
+    private readonly PluginConfig _config;
 
     private static readonly Regex UserMentionRegex    = new(@"<@!?(\d+)>", RegexOptions.Compiled);
     private static readonly Regex ChannelMentionRegex = new(@"<#(\d+)>", RegexOptions.Compiled);
@@ -16,8 +16,8 @@ public class MentionProcessor
 
     public MentionProcessor(DiscordApiService api, ChatService chat, PluginConfig config)
     {
-        _api = api;
-        _chat = chat;
+        _api    = api;
+        _chat   = chat;
         _config = config;
     }
 
@@ -29,6 +29,7 @@ public class MentionProcessor
         content = await ResolveChannelMentionsAsync(content);
         content = await ResolveRoleMentionsAsync(content);
         content = EmojiProcessor.StripCustomEmoji(content);
+        content = EmojiProcessor.UnicodeToShortcode(content);
 
         string? resolvedName = null;
         if (_config.UseNicknames)

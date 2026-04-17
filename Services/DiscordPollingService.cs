@@ -1,24 +1,25 @@
+using CS2Cord.Models;
 using Microsoft.Extensions.Logging;
 
-namespace CSSCord.Services;
+namespace CS2Cord.Services;
 
 public class DiscordPollingService
 {
     private string? _lastMessageId;
-    private bool    _seeded;
+    private bool _seeded;
 
-    private readonly HashSet<string> _processedIds    = new();
-    private readonly Queue<string>   _idFifo          = new();
-    private const    int             MaxProcessedIds  = 512;
+    private readonly HashSet<string> _processedIds = new();
+    private readonly Queue<string> _idFifo = new();
+    private const int MaxProcessedIds = 512;
 
-    private       int      _failedRequests;
-    private       DateTime _nextRetryAt    = DateTime.MinValue;
-    private const double   MaxRetrySeconds = 60.0;
+    private int _failedRequests;
+    private DateTime _nextRetryAt = DateTime.MinValue;
+    private const double MaxRetrySeconds = 60.0;
 
-    private readonly SemaphoreSlim _pollLock    = new(1, 1);
-    private const    int           MaxBatchSize = 5;
+    private readonly SemaphoreSlim _pollLock = new(1, 1);
+    private const int MaxBatchSize = 5;
 
-    private readonly float   _pollingIntervalSeconds;
+    private readonly float _pollingIntervalSeconds;
     private readonly ILogger _logger;
 
     public DiscordPollingService(float pollingIntervalSeconds, ILogger logger)
@@ -57,11 +58,9 @@ public class DiscordPollingService
 
             if (messages.Count == 0) return;
 
-            messages.Reverse();
-
             if (!_seeded)
             {
-                _lastMessageId = messages[^1].Id;
+                _lastMessageId = messages[0].Id;
                 _seeded = true;
                 return;
             }
@@ -74,15 +73,13 @@ public class DiscordPollingService
                 if (IsAlreadyProcessed(msg.Id)) continue;
 
                 RecordId(msg.Id);
-                _lastMessageId = msg.Id;
 
                 var displayName = msg.Author.GlobalName ?? msg.Author.Username ?? "Unknown";
                 onMessage(msg.Author.Id, displayName, msg.Content);
                 dispatched++;
             }
 
-            if (messages.Count > 0)
-                _lastMessageId = messages[^1].Id;
+            _lastMessageId = messages[^1].Id;
         }
         finally
         {

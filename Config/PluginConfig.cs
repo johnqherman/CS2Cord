@@ -1,7 +1,7 @@
 using CounterStrikeSharp.API.Core;
 using System.Text.Json.Serialization;
 
-namespace CSSCord.Config;
+namespace CS2Cord.Config;
 
 public class PluginConfig : BasePluginConfig
 {

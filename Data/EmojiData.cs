@@ -1,4 +1,4 @@
-namespace CSSCord.Data;
+namespace CS2Cord.Data;
 
 public static class EmojiData
 {
