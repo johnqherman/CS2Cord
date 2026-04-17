@@ -103,7 +103,7 @@ public class CS2CordPlugin : BasePlugin, IPluginConfig<PluginConfig>
         {
             var steamId = FormatSteamId(player.AuthorizedSteamID);
             if (steamId is not null)
-                displayName += $" ({steamId})";
+                displayName += Config.ShowSteamId == 1 ? $" {steamId}" : $" ({steamId})";
         }
 
         var steamId64 = player.AuthorizedSteamID?.SteamId64 ?? 0;
