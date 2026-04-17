@@ -46,7 +46,7 @@ public class DiscordApiService : IDisposable
         _guildId = guildId;
         _logger = logger;
 
-        _http = new HttpClient();
+        _http = new HttpClient(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(2) });
         _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bot", botToken);
         _http.DefaultRequestHeaders.UserAgent.ParseAdd($"CSSCord/{pluginVersion}");
     }
