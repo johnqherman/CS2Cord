@@ -142,7 +142,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
             var ip = Config.LogConnections >= 2 ? player.IpAddress : null;
             var msg = TextProcessor.FormatConnectionMessage(
                 player.PlayerName, steamId, ip,
-                isDisconnect: false, disconnectReason: null, Config.LogConnections);
+                isDisconnect: false, disconnectReason: null, Config.LogConnections, Config.ShowSteamId);
             _ = _webhook.SendServerEventAsync(GetServerName(), msg);
         }
     }
@@ -169,7 +169,7 @@ public class CSSCordPlugin : BasePlugin, IPluginConfig<PluginConfig>
             var reason = @event.Reason > 0 ? FormatDisconnectReason(@event.Reason) : null;
             var msg = TextProcessor.FormatConnectionMessage(
                 name, steamId, ipAddress: null,
-                isDisconnect: true, disconnectReason: reason, Config.LogConnections);
+                isDisconnect: true, disconnectReason: reason, Config.LogConnections, Config.ShowSteamId);
             _ = _webhook.SendServerEventAsync(GetServerName(), msg);
         }
 

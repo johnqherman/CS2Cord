@@ -8,6 +8,10 @@ public static class TextProcessor
         @"https?://[^\s<>""]+",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    private static readonly Regex EmojiShortcodeRegex = new(
+        @":\w+(?:\\_\w+)+:",
+        RegexOptions.Compiled);
+
     private static readonly char[] MarkdownChars = ['*', '_', '`', '~', '|', '>', '\\'];
 
     private const string ZeroWidthSpace = "\u200B";
@@ -28,6 +32,8 @@ public static class TextProcessor
         text = text.Replace("@everyone", $"@{ZeroWidthSpace}everyone");
         text = text.Replace("@here", $"@{ZeroWidthSpace}here");
 
+        text = EmojiShortcodeRegex.Replace(text, m => m.Value.Replace("\\_", "_"));
+
         return text;
     }
 
@@ -37,9 +43,12 @@ public static class TextProcessor
         string? ipAddress,
         bool isDisconnect,
         string? disconnectReason,
-        int logConnections)
+        int logConnections,
+        int showSteamId = 0)
     {
-        var steamPart = steamId is not null ? $" ({steamId})" : "";
+        var steamPart = steamId is not null
+            ? (showSteamId == 1 ? $" {steamId}" : $" ({steamId})")
+            : "";
 
         if (isDisconnect)
         {

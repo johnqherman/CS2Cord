@@ -38,8 +38,8 @@ public class ChatService
             var prefixColor = ChatColors.DarkBlue.ToString();
 
             var line = _config.ShowDiscordPrefix
-                ? $" {prefixColor}[Discord]{colorReset} {nameColor}{displayName}{colorReset} :  {content}"
-                : $" {nameColor}{displayName}{colorReset} :  {content}";
+                ? $" {prefixColor}[Discord]{colorReset} {nameColor}{displayName}{colorReset}: {content}"
+                : $" {nameColor}{displayName}{colorReset}: {content}";
 
             Server.PrintToChatAll(line);
         });
