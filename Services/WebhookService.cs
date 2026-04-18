@@ -16,8 +16,8 @@ public class WebhookService : IDisposable
     private readonly HttpClient        _http;
     private readonly string            _webhookUrl;
     private readonly DiscordApiService _api;
-    private readonly PluginConfig      _config;
-    private readonly ILogger           _logger;
+    private readonly PluginConfig _config;
+    private readonly ILogger _logger;
 
     public WebhookService(
         string webhookUrl,
