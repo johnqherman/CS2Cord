@@ -7,6 +7,8 @@ namespace CS2Cord.Processing;
 
 public static class EmojiProcessor
 {
+    private const int MaxEmojiSequenceLength = 8;
+
     private static readonly Lazy<IReadOnlyDictionary<string, string>> _unicodeToShortcode = new(() =>
     {
         var dict = new Dictionary<string, string>();
@@ -15,7 +17,7 @@ public static class EmojiProcessor
         return dict;
     });
 
-    private static readonly Regex ShortcodePattern   = new(
+    private static readonly Regex ShortcodePattern = new(
         @":([a-zA-Z0-9_\-+]+):",
         RegexOptions.Compiled);
 
@@ -35,7 +37,7 @@ public static class EmojiProcessor
         IReadOnlyDictionary<string, GuildEmoji> guildEmojiCache) =>
         ShortcodePattern.Replace(text, m =>
         {
-            var name = m.Groups[1].Value;
+            var name       = m.Groups[1].Value;
             var lookupName = UnescapeEmojiName(name).ToLowerInvariant();
             if (guildEmojiCache.TryGetValue(lookupName, out var emoji))
                 return emoji.Animated ? $"<a:{name}:{emoji.Id}>" : $"<:{name}:{emoji.Id}>";
@@ -53,13 +55,13 @@ public static class EmojiProcessor
         while (i < text.Length)
         {
             bool matched = false;
-            for (int len = Math.Min(8, text.Length - i); len >= 1; len--)
+            for (int len = Math.Min(MaxEmojiSequenceLength, text.Length - i); len >= 1; len--)
             {
                 var candidate = text.Substring(i, len);
                 if (reverse.TryGetValue(candidate, out var shortcode))
                 {
                     sb.Append(':').Append(shortcode).Append(':');
-                    i += len;
+                    i      += len;
                     matched = true;
                     break;
                 }

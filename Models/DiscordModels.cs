@@ -4,6 +4,7 @@ namespace CS2Cord.Models;
 
 public record DiscordMessage(
     [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("type")] int Type,
     [property: JsonPropertyName("content")] string Content,
     [property: JsonPropertyName("author")] DiscordUser Author,
     [property: JsonPropertyName("mentions")] List<DiscordUser>? Mentions);
