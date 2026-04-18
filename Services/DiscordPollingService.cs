@@ -70,6 +70,7 @@ public class DiscordPollingService
             {
                 if (dispatched >= MaxBatchSize) break;
                 if (msg.Author.Bot == true) continue;
+                if (msg.Type != 0) continue;
                 if (IsAlreadyProcessed(msg.Id)) continue;
 
                 RecordId(msg.Id);
