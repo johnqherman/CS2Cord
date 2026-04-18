@@ -66,17 +66,43 @@ public static class TextProcessor
 
     public static string? FormatDisconnectReason(int reason) => reason switch
     {
-        1  => "Client quit",
-        2  => "Timed out",
-        3  => "Kicked",
-        4  => "Kicked by vote",
-        5  => "Banned",
-        6  => "Connection lost",
-        7  => "No Steam logon",
-        8  => "VAC banned",
-        9  => "Steam logon failure",
-        10 => "Connection failed",
-        _  => $"Reason {reason}"
+        1  => null,                              // NETWORK_DISCONNECT_SHUTDOWN
+        2  => "Disconnect by user",              // NETWORK_DISCONNECT_DISCONNECT_BY_USER
+        3  => null,                              // NETWORK_DISCONNECT_DISCONNECT_BY_SERVER
+        53 => null,                              // NETWORK_DISCONNECT_RECONNECTION
+        54 => null,                              // NETWORK_DISCONNECT_LOOPSHUTDOWN
+        55 => "Disconnect by user",              // NETWORK_DISCONNECT_LOOPDEACTIVATE
+        56 => null,                              // NETWORK_DISCONNECT_HOST_ENDGAME
+        57 => null,                              // NETWORK_DISCONNECT_LOOP_LEVELLOAD_ACTIVATE
+        59 => null,                              // NETWORK_DISCONNECT_EXITING
+        69 => null,                              // NETWORK_DISCONNECT_SERVER_SHUTDOWN
+
+        4  => "Connection lost",                 // NETWORK_DISCONNECT_LOST
+        29 => "Timed out",                       // NETWORK_DISCONNECT_TIMEDOUT
+
+        6  => "Steam banned",                    // NETWORK_DISCONNECT_STEAM_BANNED
+        9  => "Steam logon failure",             // NETWORK_DISCONNECT_STEAM_LOGON
+        13 => "VAC banned",                      // NETWORK_DISCONNECT_STEAM_VACBANSTATE
+        14 => "Logged in elsewhere",             // NETWORK_DISCONNECT_STEAM_LOGGED_IN_ELSEWHERE
+
+        39  => "Kicked",                         // NETWORK_DISCONNECT_KICKED
+        40  => "Banned",                         // NETWORK_DISCONNECT_BANADDED
+        41  => "Kicked (banned)",                // NETWORK_DISCONNECT_KICKBANADDED
+        149 => "Banned",                         // NETWORK_DISCONNECT_REJECT_BANNED
+        150 => "Kicked (team killing)",          // NETWORK_DISCONNECT_KICKED_TEAMKILLING
+        151 => "Kicked (team killing at start)", // NETWORK_DISCONNECT_KICKED_TK_START
+        152 => "Kicked (untrusted account)",     // NETWORK_DISCONNECT_KICKED_UNTRUSTEDACCOUNT
+        153 => "Kicked (convicted account)",     // NETWORK_DISCONNECT_KICKED_CONVICTEDACCOUNT
+        154 => "Kicked (competitive cooldown)",  // NETWORK_DISCONNECT_KICKED_COMPETITIVECOOLDOWN
+        155 => "Kicked (team hurting)",          // NETWORK_DISCONNECT_KICKED_TEAMHURTING
+        156 => "Kicked (hostage killing)",       // NETWORK_DISCONNECT_KICKED_HOSTAGEKILLING
+        157 => "Vote kicked",                    // NETWORK_DISCONNECT_KICKED_VOTEDOFF
+        158 => "Kicked (idle)",                  // NETWORK_DISCONNECT_KICKED_IDLE
+        159 => "Kicked (suicide)",               // NETWORK_DISCONNECT_KICKED_SUICIDE
+        160 => "Kicked (no Steam login)",        // NETWORK_DISCONNECT_KICKED_NOSTEAMLOGIN
+        161 => "Kicked (no Steam ticket)",       // NETWORK_DISCONNECT_KICKED_NOSTEAMTICKET
+
+        _  => null
     };
 
     public static bool IsValidHexColor(string color) =>
